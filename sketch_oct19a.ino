@@ -1,14 +1,16 @@
-// === Multi-Zone Irrigation System ===
+// === Three-Zone Sequential Irrigation System ===
 // Each zone: 1 pump relay + 1 moisture sensor
 
-const int pumpPins[4] = {5, 18, 19, 21};       // Relay output pins
-const int moisturePins[4] = {15, 4, 2, 22};    // Moisture sensor input pins
+// === Pin Configuration ===
+const int number_zones = 4; 
+const int moistureThresholds[number_zones] = {1500, 1500, 1500, 1500};
+const int pumpPins[number_zones] = {13, 27, 12, 14};
+const int moisturePins[number_zones] = {33, 32, 35, 35}; // Zone 3 & 4 share pin 35
 
 // === Threshold and Timing Settings ===
-const int moistureThreshold = 1500;  // Adjust based on your soil
-const unsigned long checkInterval = 1000;  // Check every 2s while watering
-const unsigned long maxRunTime = 60000;    // 60s safety cutoff per zone
-const unsigned long irrigationInterval = 1000; // 1 min for testing (24h later)
+const unsigned long checkInterval = 1000;
+const unsigned long maxRunTime = 2000;   // 10 seconds
+const unsigned long irrigationInterval = 1000; // to change to every 3/4 days
 
 // === Timing Variables ===
 unsigned long lastIrrigationTime = 0;
@@ -16,91 +18,117 @@ unsigned long lastIrrigationTime = 0;
 void setup() {
   Serial.begin(115200);
 
-  // Initialize pumps and sensors
-  for (int i = 0; i < 4; i++) {
+
+  // Initialize pumps
+  for (int i = 0; i < number_zones; i++) {
     pinMode(pumpPins[i], OUTPUT);
-    digitalWrite(pumpPins[i], HIGH);  // Ensure pumps OFF (active LOW)
-    pinMode(moisturePins[i], INPUT_PULLUP);
+    digitalWrite(pumpPins[i], HIGH);
   }
-
-  Serial.println("=== 4-Zone Irrigation System Initialized ===");
-  Serial.println("Dry ≈ 3000 | Wet ≈ 980 | Threshold ≈ 1500");
 }
 
-// === Read Moisture Sensor ===
-int readMoisture(int sensorPin) {
-  int value = analogRead(sensorPin);
-  Serial.print("Moisture Reading (Pin ");
-  Serial.print(sensorPin);
-  Serial.print("): ");
-  Serial.println(value);
-  return value;
+// === Smart Moisture Reading ===
+int readMoisture(int zoneIndex) {
+  // Zone 4 uses Zone 3's sensor (both on pin 35)
+  if (zoneIndex == 3) {
+    return analogRead(moisturePins[2]); // Read from Zone 3's pin
+  }
+  return analogRead(moisturePins[zoneIndex]);
 }
 
-// === Control Pump (active LOW relay) ===
+// === Print All Moisture Readings ===
+void DispalyAllMoisture() {
+  Serial.print("Moisture: ");
+  for (int i = 0; i < number_zones; i++) {
+    int value = readMoisture(i);
+    Serial.print("[Zone");
+    Serial.print(i + 1);
+    Serial.print(":Pin");
+    Serial.print(moisturePins[i]);
+    Serial.print("=");
+    Serial.print(value);
+    if (i == 3) Serial.print("(SHARED)"); // Mark Zone 4 as shared
+    Serial.print("] ");
+  }
+  Serial.println();
+}
+
+// === Control Pump ===
 void controlPump(int pumpPin, bool on) {
-  digitalWrite(pumpPin, on ? LOW : HIGH);  // LOW = ON for relay
-  Serial.print("Pump on pin ");
-  Serial.print(pumpPin);
+  digitalWrite(pumpPin, on ? LOW : HIGH);
+  Serial.print("Pump");
+  switch(pumpPin) {
+    case 13: Serial.print("1"); break;
+    case 27: Serial.print("2"); break;
+    case 12: Serial.print("3"); break;
+    case 14: Serial.print("4"); break;
+  }
   Serial.println(on ? " ON" : " OFF");
 }
 
-// === Irrigation Logic for a Single Zone ===
+// === Irrigation Logic ===
 void irrigateZone(int zoneIndex) {
   unsigned long startTime = millis();
+  int moistureValue = readMoisture(zoneIndex);
+  int threshold = moistureThresholds[zoneIndex];
 
-  int moistureValue = readMoisture(moisturePins[zoneIndex]);
+  Serial.print("Zone ");
+  Serial.print(zoneIndex + 1);
+  if (zoneIndex == 3) Serial.print(" (uses Zone3 sensor)");
+  Serial.print(" - Value: ");
+  Serial.print(moistureValue);
+  Serial.print(" vs Threshold: ");
+  Serial.print(threshold);
+  Serial.print(" - ");
 
-  // Check if soil is dry
-  if (moistureValue > moistureThreshold) {
-    Serial.print("Zone ");
-    Serial.print(zoneIndex + 1);
-    Serial.println(" is DRY — starting irrigation...");
+  if (moistureValue > threshold) {
+    Serial.println("DRY, starting irrigation");
+    
     controlPump(pumpPins[zoneIndex], true);
-
-    // Keep watering until moist or timeout
+    
     while (true) {
-      delay(checkInterval);
-      moistureValue = readMoisture(moisturePins[zoneIndex]);
-
-      if (moistureValue < moistureThreshold) {
+      moistureValue = readMoisture(zoneIndex);
+      
+      if (moistureValue < threshold) {
         Serial.print("Zone ");
         Serial.print(zoneIndex + 1);
-        Serial.println(" is now MOIST — stopping irrigation.");
+        Serial.println(" MOIST, stopping irrigation");
         break;
       }
-
+      
       if (millis() - startTime > maxRunTime) {
         Serial.print("Zone ");
         Serial.print(zoneIndex + 1);
-        Serial.println(" timeout — stopping pump for safety.");
+        Serial.println(" TIMEOUT, safety stop");
         break;
       }
+      
+      delay(500);
     }
-
+    
     controlPump(pumpPins[zoneIndex], false);
   } else {
-    Serial.print("Zone ");
-    Serial.print(zoneIndex + 1);
-    Serial.println(" is already moist — no irrigation needed.");
+    Serial.println("MOIST, no irrigation needed");
   }
 }
 
-// === Run All Zones ===
+// === Run Irrigation Cycle ===
 void runIrrigationCycle() {
-  Serial.println("=== Starting Irrigation Cycle for All Zones ===");
-  for (int i = 0; i < 4; i++) {
+  Serial.println("=== Starting Irrigation Cycle ===");
+  DispalyAllMoisture();
+  
+  for (int i = 0; i < number_zones; i++) {
     irrigateZone(i);
-    //delay(1000); // Small delay between zones
+    delay(1000);
   }
-  Serial.println("=== Irrigation Cycle Complete ===");
+  
+  Serial.println("=== Irrigation Complete ===");
+  Serial.println();
 }
 
 // === Main Loop ===
 void loop() {
   unsigned long currentTime = millis();
 
-  // Run once per interval (set to 1 min for testing)
   if (currentTime - lastIrrigationTime >= irrigationInterval) {
     runIrrigationCycle();
     lastIrrigationTime = currentTime;
