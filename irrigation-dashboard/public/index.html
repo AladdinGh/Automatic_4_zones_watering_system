@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Irrigation Dashboard</title>
+  <style>
+    body { font-family: Arial; }
+    table { border-collapse: collapse; width: 50%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>Irrigation Dashboard</h1>
+  <table>
+    <thead>
+      <tr><th>Zone</th><th>Moisture</th></tr>
+    </thead>
+    <tbody>
+      <tr id="zone1"><td>Zone 1</td><td>-</td></tr>
+      <tr id="zone2"><td>Zone 2</td><td>-</td></tr>
+      <tr id="zone3"><td>Zone 3</td><td>-</td></tr>
+      <tr id="zone4"><td>Zone 4</td><td>-</td></tr>
+    </tbody>
+  </table>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    socket.on('update', data => {
+      const obj = JSON.parse(data);
+      const zones = obj.zones; // access nested zones
+      for (let i = 1; i <= 4; i++) {
+        document.querySelector(`#zone${i} td:nth-child(2)`).innerText = zones[`zone${i}`];
+      }
+    });
+  </script>
+</body>
+</html>
