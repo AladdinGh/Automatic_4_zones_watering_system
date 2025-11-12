@@ -4,21 +4,54 @@
   <title>Irrigation Dashboard</title>
   <style>
     body { font-family: Arial; }
-    table { border-collapse: collapse; width: 50%; margin-top: 20px; }
+    table { border-collapse: collapse; width: 60%; margin-top: 20px; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    button { padding: 5px 10px; margin: 2px; }
   </style>
 </head>
 <body>
   <h1>Irrigation Dashboard</h1>
   <table>
     <thead>
-      <tr><th>Zone</th><th>Moisture</th></tr>
+      <tr>
+        <th>Zone</th>
+        <th>Moisture</th>
+        <th>Control Pump</th>
+      </tr>
     </thead>
     <tbody>
-      <tr id="zone1"><td>Zone 1</td><td>-</td></tr>
-      <tr id="zone2"><td>Zone 2</td><td>-</td></tr>
-      <tr id="zone3"><td>Zone 3</td><td>-</td></tr>
-      <tr id="zone4"><td>Zone 4</td><td>-</td></tr>
+      <tr id="zone1">
+        <td>Zone 1</td>
+        <td>-</td>
+        <td>
+          <button onclick="controlPump(1,'on')">ON</button>
+          <button onclick="controlPump(1,'off')">OFF</button>
+        </td>
+      </tr>
+      <tr id="zone2">
+        <td>Zone 2</td>
+        <td>-</td>
+        <td>
+          <button onclick="controlPump(2,'on')">ON</button>
+          <button onclick="controlPump(2,'off')">OFF</button>
+        </td>
+      </tr>
+      <tr id="zone3">
+        <td>Zone 3</td>
+        <td>-</td>
+        <td>
+          <button onclick="controlPump(3,'on')">ON</button>
+          <button onclick="controlPump(3,'off')">OFF</button>
+        </td>
+      </tr>
+      <tr id="zone4">
+        <td>Zone 4</td>
+        <td>-</td>
+        <td>
+          <button onclick="controlPump(4,'on')">ON</button>
+          <button onclick="controlPump(4,'off')">OFF</button>
+        </td>
+      </tr>
     </tbody>
   </table>
 
@@ -26,13 +59,19 @@
   <script>
     const socket = io();
 
+    // Update moisture values when new data arrives
     socket.on('update', data => {
       const obj = JSON.parse(data);
-      const zones = obj.zones; // access nested zones
+      const zones = obj.zones;
       for (let i = 1; i <= 4; i++) {
         document.querySelector(`#zone${i} td:nth-child(2)`).innerText = zones[`zone${i}`];
       }
     });
+
+    // Send pump commands to server
+    function controlPump(zone, action) {
+      socket.emit('pumpCommand', { zone, action });
+    }
   </script>
 </body>
 </html>
