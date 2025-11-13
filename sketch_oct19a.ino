@@ -26,8 +26,8 @@ const int pumpPins[number_zones] = {13, 27, 12, 14};
 const int moisturePins[number_zones] = {33, 32, 35, 35};  // Zone 3 & 4 share pin 35
 const unsigned long maxRunTime = 2000;       // ms per zone
 const unsigned long zoneDelay = 1000;        // ms delay between zones
-const unsigned long sleepDurationSec = 10;   // seconds
-const int ControlTimeWindow = 10000; 
+const unsigned long sleepDurationSec = 604800;   // 1 week (in seconds)
+const int ControlTimeWindow = 300000; // 5 minutes (300,000 ms) for manual control before deep sleep
 
 
 // === Function to control pump ===
@@ -206,7 +206,7 @@ void setup() {
   publishAllMoisture();   // final reading
 
   // Keep ESP32 awake for 10 seconds for possible manual pump control
-  Serial.println("Manual control window open (10s)...");
+  Serial.println("Manual control window open (5 minutes)...");
   unsigned long start = millis();
   while (millis() - start < ControlTimeWindow) {
     client.loop(); // allow dashboard control
