@@ -1,8 +1,8 @@
-##🌿 Automatic_4_zones_watering_system
+##🌿 Automatic_4_zones_watering_system ##
 
 A system for watering your plants when you are not home.
 
-##🌱 How it works
+##🌱 How it works##
 
 Moisture sensors in 4 zones deliver their values to the ESP32 board.
 Once a zone’s moisture level drops below its threshold, the ESP32 activates the relay for that zone — turning on a small water pump that delivers water through a hose to the plant.
@@ -10,7 +10,7 @@ Once a zone’s moisture level drops below its threshold, the ESP32 activates th
 The system connects to Wi-Fi and an MQTT broker, so you can monitor soil moisture and control pumps remotely.
 After each watering cycle, the ESP32 goes into deep sleep for one week to save energy.
 
-##⚙️ Parameters
+##⚙️ Parameters##
 
 4 irrigation zones (expandable)
 
@@ -24,7 +24,7 @@ Manual control window: 5 minutes after each watering cycle (via MQTT)
 
 Energy optimization: ESP32 sleeps most of the time to minimize power use
 
-##🧠 Features
+##🧠 Features##
 
 🌦️ Real-time clock via NTP
 
@@ -60,7 +60,7 @@ Send this to topic irrigation/command:
 Actions: "on" or "off"
 Zones: 1–4
 
-##🧩 Hardware Setup
+##🧩 Hardware Setup##
 Zone	Moisture Sensor Pin	Pump Pin
 1	GPIO 33	GPIO 13
 2	GPIO 32	GPIO 27
@@ -69,7 +69,7 @@ Zone	Moisture Sensor Pin	Pump Pin
 
 ⚠️ Zones 3 and 4 share the same analog pin (GPIO 35). You can change this if you have separate sensors.
 
-##🧰 Required Libraries
+##🧰 Required Libraries##
 
 Install in Arduino IDE:
 
@@ -81,7 +81,7 @@ WiFiUdp.h (built-in)
 
 NTPClient (by Fabrice Weinberg)
 
-##💻 User manual
+##💻 User manual##
 
 Modify the paths of Node.js, Mosquitto, and ngrok in RunMe.bat.
 
@@ -95,7 +95,7 @@ Public (via ngrok): e.g. https://elvera-heliographic-corina.ngrok-free.dev/
 
 This web interface allows you to monitor sensor readings and manually control irrigation remotely.
 
-##🔁 Operation Flow
+##🔁 Operation Flow##
 
 ESP32 wakes up from deep sleep
 
@@ -117,7 +117,7 @@ Publishes "going to sleep" message
 
 Enters deep sleep for one week
 
-##🧩 Example Serial Output
+##🧩 Example Serial Output##
 === Starting Irrigation Cycle ===
 Zone 1 - Value 1820 vs Threshold 1500
 DRY → start irrigation
@@ -129,7 +129,7 @@ Publishing: {"timestamp":"12:30:05","zones":{"zone1":820,"zone2":910,"zone3":870
 Manual control window open (5 minutes)...
 ESP32 entering deep sleep at 12:35:05
 
-##🔋 Power Saving Notes
+##🔋 Power Saving Notes##
 
 Deep sleep current: only a few µA
 
@@ -139,7 +139,7 @@ Ensure a common ground between all sensors and the ESP32
 
 Recommended: separate power supply for pumps
 
-##🚀 Future Improvements
+##🚀 Future Improvements##
 
 Web dashboard for live control
 
