@@ -95,23 +95,23 @@ Install the following in the Arduino IDE:
 
 ## 💻 User manual
 
-Modify the paths of Node.js, Mosquitto, and ngrok in RunMe.bat.
+## 💻 User Manual
 
-Run RunMe.bat.
+1. **Modify configuration**  
+   Edit the paths of **Node.js**, **Mosquitto**, and **ngrok** in `RunMe.bat` as needed.
 
-The web interface should be accessible at:
+2. **Run the system**  
+   Execute `RunMe.bat` to start the application.
 
-Local: http://localhost:3000/
+3. **Access the web interface**  
+   - **Local:** [http://localhost:3000/](http://localhost:3000/)  
+   - **Public (via ngrok):** e.g. [https://elvera-heliographic-corina.ngrok-free.dev/](https://elvera-heliographic-corina.ngrok-free.dev/)
 
-Public (via ngrok): e.g. https://elvera-heliographic-corina.ngrok-free.dev/
+4. **Features available on the web interface:**  
+   - View real-time **soil moisture readings** for all zones  
+   - Monitor **irrigation status**  
+   - Send **manual pump commands** via MQTT
 
-This web interface allows you to:
-
-View soil moisture readings
-
-Monitor irrigation status
-
-Send manual pump commands via MQTT
 
 ## 🔁 Operation Flow
 
