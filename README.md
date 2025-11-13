@@ -226,12 +226,12 @@ ESP32 entering deep sleep at 12:05:05
                         ↓
               [Node.js + Web Dashboard]
 
-🧾 License
+## 🧾 License
 
 This project is open-source and available under the MIT License.
 Feel free to modify, extend, or integrate it into your own system.
 
-👨‍🔧 Author
+## 👨‍🔧 Author
 
 Developed and maintained by Ala Eddine Gharbi
 Based on the concept of a 4-zone automatic irrigation system powered by ESP32 + MQTT.
