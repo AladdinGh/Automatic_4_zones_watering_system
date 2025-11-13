@@ -46,16 +46,19 @@ const int mqttPort = 1883;
 ```
 
 ## 🛰️ MQTT Topics
-Topic	Direction	Description
-irrigation/status	Publish	System and sleep status messages
-irrigation/moisture	Publish	JSON payload with all zone moisture values
-irrigation/command	Subscribe	Manual pump control commands
+| Topic                 | Direction | Description                                |
+| --------------------- | --------- | ------------------------------------------ |
+| `irrigation/status`   | Publish   | System and sleep status messages           |
+| `irrigation/moisture` | Publish   | JSON payload with all zone moisture values |
+| `irrigation/command`  | Subscribe | Manual pump control commands               |
+
+
 ⚙️ Example Command (to control a pump)
 
 Send this JSON message to topic irrigation/command:
-
+```Json
 {"zone": 2, "action": "on"}
-
+```
 
 zone: The zone number (1–4)
 
@@ -63,15 +66,17 @@ action: "on" to start irrigation or "off" to stop it
 
 💡 Example:
 Turn off pump for zone 1:
-
+```Json
 {"zone": 1, "action": "off"}
-
+```
 ## 🧩 Hardware Setup
-Zone	Moisture Sensor Pin	Pump Pin
-1	GPIO 33	GPIO 13
-2	GPIO 32	GPIO 27
-3	GPIO 35	GPIO 12
-4	GPIO 35 (shared)	GPIO 14
+| Zone | Moisture Sensor Pin | Pump Pin |
+| :--: | :-----------------: | :------: |
+|   1  |       GPIO 33       |  GPIO 13 |
+|   2  |       GPIO 32       |  GPIO 27 |
+|   3  |       GPIO 35       |  GPIO 12 |
+|   4  |  GPIO 35 *(shared)* |  GPIO 14 |
+
 
 ⚠️ Zones 3 and 4 share the same analog pin (GPIO 35).
 You can modify this if you have separate sensors.
@@ -80,13 +85,13 @@ You can modify this if you have separate sensors.
 
 Install the following in the Arduino IDE:
 
-WiFi.h (built-in for ESP32)
+- WiFi.h (built-in for ESP32)
 
-PubSubClient (by Nick O’Leary)
+- PubSubClient (by Nick O’Leary)
 
-WiFiUdp.h (built-in)
+- WiFiUdp.h (built-in)
 
-NTPClient (by Fabrice Weinberg)
+- NTPClient (by Fabrice Weinberg)
 
 ## 💻 User manual
 
@@ -110,25 +115,25 @@ Send manual pump commands via MQTT
 
 ## 🔁 Operation Flow
 
-ESP32 wakes up from deep sleep
+1. ESP32 wakes up from deep sleep
 
-Connects to Wi-Fi and MQTT broker
+2. Connects to Wi-Fi and MQTT broker
 
-Reads soil moisture values
+3. Reads soil moisture values
 
-Publishes readings to MQTT (irrigation/moisture)
+4. Publishes readings to MQTT (irrigation/moisture)
 
-Automatically irrigates zones if soil is dry
+5. Automatically irrigates zones if soil is dry
 
-Publishes completion message (irrigation/status)
+6. Publishes completion message (irrigation/status)
 
-Waits 5 minutes for possible manual MQTT control
+7. Waits 5 minutes for possible manual MQTT control
 
-Turns off all pumps
+8. Turns off all pumps
 
-Publishes a sleep message and disconnects
+9. Publishes a sleep message and disconnects
 
-Enters deep sleep for one week
+10. Enters deep sleep for one week
 
 ## 🧩 Example Serial Output
 === Starting Irrigation Cycle ===
@@ -141,6 +146,7 @@ Pump on pin 13 OFF
 Publishing: {"timestamp":"12:30:05","zones":{"zone1":820,"zone2":910,"zone3":870,"zone4":865}}
 Manual control window open (5 minutes)...
 ESP32 entering deep sleep at 12:35:05
+
 
 ## 🔋 Power Saving Notes
 
@@ -165,15 +171,17 @@ Use a separate power supply for pumps (shared ground with ESP32)
 📱 Integration with mobile app (future version)
 
 ## 🧮 Parameter Summary
-Parameter	Variable	Default Value	Description
-Max run time per zone	maxRunTime	2000 ms	Maximum irrigation duration per zone
-Delay between zones	zoneDelay	1000 ms	Delay between irrigation cycles
-Deep sleep duration	sleepDurationSec	604800 s	Sleep time (1 week)
-Manual control window	ControlTimeWindow	300000 ms	Time to control pumps via MQTT (5 minutes)
-🧩 Example MQTT Workflow
+| Parameter             | Variable            | Default Value | Description                                |
+| --------------------- | ------------------- | ------------- | ------------------------------------------ |
+| Max run time per zone | `maxRunTime`        | `2000 ms`     | Maximum irrigation duration per zone       |
+| Delay between zones   | `zoneDelay`         | `1000 ms`     | Delay between irrigation cycles            |
+| Deep sleep duration   | `sleepDurationSec`  | `604800 s`    | Sleep time (1 week)                        |
+| Manual control window | `ControlTimeWindow` | `300000 ms`   | Time to control pumps via MQTT (5 minutes) |
 
-ESP32 publishes soil data:
+## 🧩 Example MQTT Workflow
 
+1. ESP32 publishes soil data:
+```Json
 {
   "timestamp": "12:00:05",
   "zones": {
@@ -183,28 +191,30 @@ ESP32 publishes soil data:
     "zone4": 850
   }
 }
+```
 
-
-You send a manual command:
-
+2. You send a manual command:
+```Json
 {"zone": 2, "action": "on"}
+```
 
-
-ESP32 responds:
+3. ESP32 responds:
 
 Pump on pin 27 ON
 
 
-When done, ESP32 enters deep sleep and publishes:
+4. When done, ESP32 enters deep sleep and publishes:
 
 ESP32 entering deep sleep at 12:05:05
 
 ⚡ Example MQTT Dashboard Setup
-Component	Example Value
-Broker	mosquitto on 192.168.178.45
-Port	1883
-Topics	irrigation/status, irrigation/moisture, irrigation/command
-UI Tool	Node-RED / MQTT Explorer / Custom Web Interface
+| Component   | Example Value                                                    |
+| ----------- | ---------------------------------------------------------------- |
+| **Broker**  | `mosquitto` on `192.168.178.45`                                  |
+| **Port**    | `1883`                                                           |
+| **Topics**  | `irrigation/status`, `irrigation/moisture`, `irrigation/command` |
+| **UI Tool** | Node-RED / MQTT Explorer / Custom Web Interface                  |
+
 ## 🧩 System Overview
 [Soil Sensors] → [ESP32 Controller] → [Relays → Pumps]
                         ↓
