@@ -136,6 +136,8 @@ Send manual pump commands via MQTT
 10. Enters deep sleep for one week
 
 ## 🧩 Example Serial Output
+
+```text
 === Starting Irrigation Cycle ===
 Zone 1 - Value 1820 vs Threshold 1500
 DRY → start irrigation
@@ -146,7 +148,7 @@ Pump on pin 13 OFF
 Publishing: {"timestamp":"12:30:05","zones":{"zone1":820,"zone2":910,"zone3":870,"zone4":865}}
 Manual control window open (5 minutes)...
 ESP32 entering deep sleep at 12:35:05
-
+```
 
 ## 🔋 Power Saving Notes
 
