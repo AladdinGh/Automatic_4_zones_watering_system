@@ -34,6 +34,62 @@ After each watering cycle, the ESP32 goes into **deep sleep for one week** to sa
 
 ---
 
+## 🏗️ Build From Scratch
+
+### Local ESP32 + Cloud MQTT + Web Dashboard
+
+This is the most robust and professional setup:
+
+- ESP32 stays on your local network.
+- It publishes data (moisture, pump status, board status) to a **cloud MQTT broker**.
+- A **web dashboard** subscribes to that MQTT broker to display live data globally.
+- No port forwarding or direct exposure of your ESP32 to the Internet is needed.
+
+---
+
+### Steps to Build
+
+1. **ESP32 Code**
+   - Connects to local Wi-Fi.
+   - Reads moisture sensors.
+   - Publishes:
+     - Soil moisture (`irrigation/moisture`)
+     - Pump status (part of moisture JSON)
+     - Board status (`irrigation/boardstatus`) including awake/deep sleep timestamps.
+   - Subscribes to `irrigation/command` for manual pump control.
+
+2. **MQTT Broker**
+   - Use a **cloud MQTT broker** (e.g., CloudMQTT, HiveMQ) or a local broker.
+   - Ensure the ESP32 can connect to the broker.
+
+3. **Web Dashboard (Node.js + Socket.io)**
+   - Subscribes to `irrigation/moisture` and `irrigation/boardstatus`.
+   - Displays real-time soil moisture and pump status.
+   - Displays board state with a virtual LED (green for awake, red for deep sleep).
+   - Allows manual pump control via MQTT commands.
+
+---
+
+### Implementation Steps
+
+```bash
+# Create project folder
+mkdir irrigation-dashboard
+cd irrigation-dashboard
+
+# Initialize Node.js project
+npm init -y
+
+# Install required packages
+npm install express socket.io mqtt
+```
+1. Create server.js
+2. Create public/index.html
+3. Start the server : node server.js
+4. Access dashboard Local: http://localhost:3000
+5. Remote: Use ngrok or host on a cloud server: ngrok http 3000
+
+
 ## 📡 Network & MQTT Configuration  
 
 Edit these constants in the code:
@@ -51,6 +107,7 @@ const int mqttPort = 1883;
 | `irrigation/status`   | Publish   | System and sleep status messages           |
 | `irrigation/moisture` | Publish   | JSON payload with all zone moisture values |
 | `irrigation/command`  | Subscribe | Manual pump control commands               |
+| `irrigation/boardstatus`  | Publish | ESP32 board state: awake or deep sleep with timestamp               |
 
 
 ⚙️ Example Command (to control a pump)
