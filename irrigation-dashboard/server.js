@@ -10,45 +10,53 @@ const io = socketIo(server);
 const mqttBroker = 'mqtt://192.168.178.45';
 const topicMoisture = 'irrigation/moisture';
 const topicCommand = 'irrigation/command';
+const topicBoardStatus = 'irrigation/boardstatus';
 
 const client = mqtt.connect(mqttBroker);
 
-// Cache the last received moisture message
 let lastMoisture = null;
+let lastBoardStatus = null;
 
-// Connect to MQTT broker
 client.on('connect', () => {
   console.log('Connected to MQTT broker');
-  client.subscribe(topicMoisture, () => console.log('Subscribed to moisture topic'));
+  client.subscribe(topicMoisture);
+  client.subscribe(topicBoardStatus);
 });
 
-// Receive MQTT messages and broadcast via Socket.IO
+// MQTT → Socket.IO
 client.on('message', (topic, message) => {
-  lastMoisture = message.toString();
-  io.emit('update', lastMoisture);
-});
+  const data = message.toString();
 
-// Serve HTML from "public" folder
-app.use(express.static('public'));
-
-// Handle Socket.IO connections
-io.on('connection', socket => {
-  console.log('Client connected');
-
-  // Send last cached moisture values immediately
-  if (lastMoisture) {
-    socket.emit('update', lastMoisture);
+  if (topic === topicMoisture) {
+    lastMoisture = data;
+    io.emit('update', JSON.parse(data));
   }
 
-  // Receive pump commands from clients
+  if (topic === topicBoardStatus) {
+    try {
+      const parsed = JSON.parse(data);
+      lastBoardStatus = parsed;
+      io.emit('boardStatus', parsed);
+    } catch (e) {
+      console.error("Invalid JSON from ESP:", data);
+    }
+  }
+});
+
+app.use(express.static('public'));
+
+io.on('connection', socket => {
+  console.log("Client connected");
+
+  if (lastMoisture) socket.emit('update', JSON.parse(lastMoisture));
+  if (lastBoardStatus) socket.emit('boardStatus', lastBoardStatus);
+
   socket.on('pumpCommand', data => {
-    // data: {zone:1, action:"on"/"off"}
-    console.log('Pump command received:', data);
+    console.log("Pump command:", data);
     client.publish(topicCommand, JSON.stringify(data));
   });
 });
 
-const PORT = 3000;
-server.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
-});
+server.listen(3000, '0.0.0.0', () =>
+  console.log("Server running on port 3000")
+);
