@@ -7,8 +7,8 @@
 // =============== Wi-Fi + MQTT CONFIGURATION =================
 // ============================================================
 
-const char* ssid = "FRITZ!Box 7430 OY";
-const char* password = "78520207924465391492";
+const char* ssid = "yourwifi";
+const char* password = "yourpw";
 
 const char* mqttServer = "192.168.178.45";
 const int mqttPort = 1883;
