@@ -150,8 +150,6 @@ Install the following in the Arduino IDE:
 
 - NTPClient (by Fabrice Weinberg)
 
-## 💻 User manual
-
 ## 💻 User Manual
 
 1. **Modify configuration**  
