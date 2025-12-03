@@ -10,7 +10,7 @@
 const char* ssid = "yourwifi";
 const char* password = "yourpw";
 
-const char* mqttServer = "192.168.178.45";
+const char* mqttServer = "mqttserver";
 const int mqttPort = 1883;
 
 const char* topicStatus       = "irrigation/status";
