@@ -160,7 +160,7 @@ Install the following in the Arduino IDE:
 
 3. **Access the web interface**  
    - **Local:** [http://localhost:3000/](http://localhost:3000/)  
-   - **Public (via ngrok):** e.g. [https://elvera-heliographic-corina.ngrok-free.dev/](https://elvera-heliographic-corina.ngrok-free.dev/)
+   - **Public (via ngrok) 
 
 4. **Features available on the web interface:**  
    - View real-time **soil moisture readings** for all zones  
